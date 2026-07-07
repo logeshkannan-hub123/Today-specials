@@ -1,0 +1,23 @@
+// Prisma schema for the Hotel Today Specials backend (Phase 1)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model TodaySpecial {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  dishName  String   @db.VarChar(255)
+  price     Decimal  @db.Decimal(10, 2)
+  image     Bytes    @db.LongBlob
+  video     Bytes    @db.LongBlob
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("today_specials")
+}
