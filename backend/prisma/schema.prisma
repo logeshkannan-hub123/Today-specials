@@ -13,11 +13,21 @@ model TodaySpecial {
   title     String   @db.VarChar(255)
   dishName  String   @db.VarChar(255)
   price     Decimal  @db.Decimal(10, 2)
-  image     Bytes    @db.LongBlob
-  video     Bytes    @db.LongBlob
+  image     Bytes?   @db.LongBlob
+  video     Bytes?   @db.LongBlob
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("today_specials")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique @db.VarChar(100)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
 }

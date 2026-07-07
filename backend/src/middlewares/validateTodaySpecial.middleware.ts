@@ -35,9 +35,14 @@ export function validateCreateTodaySpecial(
   if (!isNonEmptyString(title)) missingFields.push("title");
   if (!isNonEmptyString(dishName)) missingFields.push("dishName");
   if (!isValidPrice(price)) missingFields.push("price");
-  if (!isValidBase64(image)) missingFields.push("image");
-  if (!isValidBase64(video)) missingFields.push("video");
   if (!isValidBoolean(isActive)) missingFields.push("isActive");
+
+  if (image !== undefined && image !== null && !isValidBase64(image)) {
+    missingFields.push("image");
+  }
+  if (video !== undefined && video !== null && !isValidBase64(video)) {
+    missingFields.push("video");
+  }
 
   if (missingFields.length > 0) {
     next(
@@ -46,6 +51,14 @@ export function validateCreateTodaySpecial(
         `Invalid or missing required field(s): ${missingFields.join(", ")}`
       )
     );
+    return;
+  }
+
+  const hasImage = isValidBase64(image);
+  const hasVideo = isValidBase64(video);
+
+  if (!hasImage && !hasVideo) {
+    next(new ApiError(400, "At least one of image or video is required"));
     return;
   }
 

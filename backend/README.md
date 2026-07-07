@@ -1,8 +1,6 @@
-# Hotel Today Specials - Backend (Phase 1)
+# Hotel Today Specials - Backend
 
-Backend REST API for managing a hotel's "Today's Specials" dishes, built with **Node.js**, **Express.js**, **TypeScript**, **Prisma ORM**, and **MySQL**.
-
-This is Phase 1 of the project — backend and database layer only. No frontend is included.
+Backend REST API for managing a hotel's "Today's Specials" dishes, built with **Node.js**, **Express.js**, **TypeScript**, **Prisma ORM**, and **MySQL**. Phase 2 adds simple username/password authentication used by the React frontend (see `../frontend`).
 
 ## Project Overview
 
@@ -11,9 +9,11 @@ Hotel staff can manage today's special dishes through a clean REST API. Each spe
 - Title
 - Dish Name
 - Price
-- Image (stored as binary `LONGBLOB`, transferred as base64 over the API)
-- Video (stored as binary `LONGBLOB`, transferred as base64 over the API)
+- Image (stored as binary `LONGBLOB`, transferred as base64 over the API) — optional
+- Video (stored as binary `LONGBLOB`, transferred as base64 over the API) — optional, but **at least one of image or video is required**
 - Is Active flag
+
+A `User` table backs simple login/create-user endpoints for the admin dashboard. There is no JWT/session middleware — the frontend keeps the logged-in state in `localStorage` and the dish CRUD endpoints remain open, matching the "simple session-based or localStorage login" requirement.
 
 The project follows a clean layered architecture:
 
@@ -46,15 +46,19 @@ backend/
 │   │
 │   ├── controllers/
 │   │     todaySpecial.controller.ts
+│   │     auth.controller.ts
 │   │
 │   ├── routes/
 │   │     todaySpecial.routes.ts
+│   │     auth.routes.ts
 │   │
 │   ├── services/
 │   │     todaySpecial.service.ts
+│   │     auth.service.ts
 │   │
 │   ├── middlewares/
 │   │     validateTodaySpecial.middleware.ts
+│   │     validateAuth.middleware.ts
 │   │     notFound.middleware.ts
 │   │     errorHandler.middleware.ts
 │   │
@@ -63,9 +67,11 @@ backend/
 │   │     apiResponse.ts
 │   │     asyncHandler.ts
 │   │     serializeTodaySpecial.ts
+│   │     serializeUser.ts
 │   │
 │   ├── types/
 │   │     todaySpecial.types.ts
+│   │     user.types.ts
 │   │
 │   ├── app.ts
 │   └── server.ts
@@ -151,7 +157,7 @@ Base URL: `/api/today-specials`
 
 ### Request Body (POST / PUT)
 
-`image` and `video` must be sent as **base64-encoded strings** in the JSON body (they are stored as `LONGBLOB` in MySQL).
+`image` and `video` must be sent as **base64-encoded strings** in the JSON body (they are stored as `LONGBLOB` in MySQL). Both are optional individually, but a `POST` must include at least one of them.
 
 ```json
 {
@@ -165,6 +171,26 @@ Base URL: `/api/today-specials`
 ```
 
 For `PUT`, all fields are optional but at least one must be provided.
+
+## Authentication Endpoints
+
+Base URL: `/api/auth`
+
+| Method | Endpoint             | Description                                   |
+| ------ | ---------------------- | ---------------------------------------------- |
+| POST   | `/api/auth/login`     | Validate username/password, return the user   |
+| POST   | `/api/auth/register`  | Create a new user account (self-service)       |
+
+Request body for both:
+
+```json
+{
+  "username": "admin",
+  "password": "secret123"
+}
+```
+
+Passwords are hashed with `bcryptjs` before being stored; the API never returns the password field. There is no JWT/session token — the frontend stores the returned user object in `localStorage` and treats its presence as "logged in".
 
 ### Success Response Format
 

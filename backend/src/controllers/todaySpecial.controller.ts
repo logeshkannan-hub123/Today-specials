@@ -36,15 +36,15 @@ export const getTodaySpecialById = asyncHandler(
 
 export const createTodaySpecial = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const body = req.body as Required<TodaySpecialRequestBody>;
+    const body = req.body as TodaySpecialRequestBody;
 
     const input: CreateTodaySpecialInput = {
-      title: body.title,
-      dishName: body.dishName,
-      price: body.price,
-      image: Buffer.from(body.image, "base64"),
-      video: Buffer.from(body.video, "base64"),
-      isActive: body.isActive,
+      title: body.title as string,
+      dishName: body.dishName as string,
+      price: body.price as number,
+      image: body.image ? Buffer.from(body.image, "base64") : null,
+      video: body.video ? Buffer.from(body.video, "base64") : null,
+      isActive: body.isActive as boolean,
     };
 
     const special = await todaySpecialService.createTodaySpecial(input);

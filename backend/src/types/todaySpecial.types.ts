@@ -2,8 +2,8 @@ export interface CreateTodaySpecialInput {
   title: string;
   dishName: string;
   price: number;
-  image: Buffer<ArrayBuffer>;
-  video: Buffer<ArrayBuffer>;
+  image: Buffer<ArrayBuffer> | null;
+  video: Buffer<ArrayBuffer> | null;
   isActive: boolean;
 }
 
@@ -11,8 +11,8 @@ export interface UpdateTodaySpecialInput {
   title?: string;
   dishName?: string;
   price?: number;
-  image?: Buffer<ArrayBuffer>;
-  video?: Buffer<ArrayBuffer>;
+  image?: Buffer<ArrayBuffer> | null;
+  video?: Buffer<ArrayBuffer> | null;
   isActive?: boolean;
 }
 
@@ -21,8 +21,8 @@ export interface TodaySpecialResponse {
   title: string;
   dishName: string;
   price: number;
-  image: string;
-  video: string;
+  image: string | null;
+  video: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

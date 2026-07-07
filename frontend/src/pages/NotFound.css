@@ -1,0 +1,20 @@
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: var(--color-bg);
+}
+
+.not-found-card {
+  text-align: center;
+  padding: 3rem 2.5rem;
+  max-width: 420px;
+}
+
+.not-found-code {
+  font-size: 3.5rem;
+  color: var(--color-primary);
+  margin-bottom: 0.25rem;
+}

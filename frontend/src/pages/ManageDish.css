@@ -1,0 +1,21 @@
+.manage-dish-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.manage-dish-header h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.manage-dish-header .page-subtitle {
+  margin-bottom: 0;
+}
+
+.manage-dish-grid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
