@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { validateLoginForm, isFormValid } from "../utils/validators";
 import { getErrorMessage } from "../utils/format";
@@ -90,10 +90,6 @@ function Login() {
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
         </form>
-
-        <Link to="/register" className="btn btn-secondary btn-block login-register-link">
-          Register
-        </Link>
       </div>
     </div>
   );

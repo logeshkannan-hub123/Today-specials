@@ -76,7 +76,7 @@ VITE_API_BASE_URL=http://localhost:5000/api
 VITE_HOTEL_NAME=Cage Nayagam
 ```
 
-Make sure the backend (`../backend`) is running on the URL above, and that at least one user exists — use `POST /api/auth/create-user` once (e.g. via curl/Postman) to create your first login.
+Make sure the backend (`../backend`) is running on the URL above. There is no separate registration step: the very first username/password submitted on the Login page is automatically saved as the admin account (see "Authentication" below).
 
 ## Run Development Server
 
@@ -95,7 +95,7 @@ npm run preview
 
 ## Authentication
 
-There is no JWT — `services/authService.js` calls `POST /api/auth/login` and stores the returned user object in `localStorage`. `hooks/useAuth.js` exposes `{ user, isAuthenticated, login, logout }`. `components/ProtectedRoute.jsx` redirects to `/login` when not authenticated and renders the shared `Navbar` + page content otherwise.
+There is no JWT and no registration page — `services/authService.js` calls `POST /api/auth/login` and stores the returned user object in `localStorage`. The backend implements first-run bootstrap: if the `users` table is empty, whatever username/password is submitted becomes the admin account and the login succeeds immediately; once an account exists, subsequent logins are checked against it (wrong username/password shows "Invalid username or password"). `hooks/useAuth.js` exposes `{ user, isAuthenticated, login, logout }`. `components/ProtectedRoute.jsx` redirects to `/login` when not authenticated and renders the shared `Navbar` + page content otherwise.
 
 ## Media Handling
 

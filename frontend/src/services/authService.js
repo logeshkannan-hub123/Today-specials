@@ -8,11 +8,6 @@ export async function login(username, password) {
   return user;
 }
 
-export async function register(username, password) {
-  const response = await api.post("/auth/register", { username, password });
-  return response.data.data;
-}
-
 export function logout() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
 }

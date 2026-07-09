@@ -172,16 +172,20 @@ Base URL: `/api/today-specials`
 
 For `PUT`, all fields are optional but at least one must be provided.
 
-## Authentication Endpoints
+## Authentication Endpoint
 
 Base URL: `/api/auth`
 
-| Method | Endpoint             | Description                                   |
-| ------ | ---------------------- | ---------------------------------------------- |
-| POST   | `/api/auth/login`     | Validate username/password, return the user   |
-| POST   | `/api/auth/register`  | Create a new user account (self-service)       |
+| Method | Endpoint           | Description                                        |
+| ------ | -------------------- | ----------------------------------------------------- |
+| POST   | `/api/auth/login`   | First-run admin bootstrap, then username/password check |
 
-Request body for both:
+There is a single auth endpoint — no separate registration API. `POST /api/auth/login` implements first-time-setup logic:
+
+1. If the `users` table is empty, the submitted `username`/`password` is hashed and inserted as the first (and only) admin account, and the request succeeds as a login.
+2. If the `users` table already has an account, the submitted credentials are checked against it (bcrypt compare). A mismatch on username or password returns `401` with `"Invalid username or password"`.
+
+No new accounts can be created after the first one exists — there's intentionally no way to add more users via the API.
 
 ```json
 {

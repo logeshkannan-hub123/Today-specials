@@ -2,30 +2,24 @@ import bcrypt from "bcryptjs";
 import type { User } from "@prisma/client";
 import prisma from "../config/prisma";
 import ApiError from "../utils/ApiError";
-import { RegisterUserInput, LoginInput } from "../types/user.types";
+import { LoginInput } from "../types/user.types";
 
 const SALT_ROUNDS = 10;
 
-export async function registerUser(input: RegisterUserInput): Promise<User> {
-  const existingUser = await prisma.user.findUnique({
-    where: { username: input.username },
-  });
+export async function loginUser(input: LoginInput): Promise<User> {
+  const userCount = await prisma.user.count();
 
-  if (existingUser) {
-    throw new ApiError(409, "Username already exists");
+  if (userCount === 0) {
+    const hashedPassword = await bcrypt.hash(input.password, SALT_ROUNDS);
+
+    return prisma.user.create({
+      data: {
+        username: input.username,
+        password: hashedPassword,
+      },
+    });
   }
 
-  const hashedPassword = await bcrypt.hash(input.password, SALT_ROUNDS);
-
-  return prisma.user.create({
-    data: {
-      username: input.username,
-      password: hashedPassword,
-    },
-  });
-}
-
-export async function loginUser(input: LoginInput): Promise<User> {
   const user = await prisma.user.findUnique({
     where: { username: input.username },
   });

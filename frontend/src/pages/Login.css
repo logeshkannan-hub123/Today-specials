@@ -36,10 +36,6 @@
   margin: 0;
 }
 
-.login-register-link {
-  margin-top: 0.75rem;
-}
-
 @media (max-width: 480px) {
   .login-card {
     padding: 2rem 1.5rem;
