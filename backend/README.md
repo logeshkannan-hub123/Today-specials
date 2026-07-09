@@ -147,11 +147,12 @@ npm run start
 
 Base URL: `/api/today-specials`
 
-| Method | Endpoint                  | Description                |
-| ------ | ------------------------- | --------------------------- |
-| GET    | `/api/today-specials`     | Get all today's specials    |
-| GET    | `/api/today-specials/:id` | Get a single special by id  |
-| POST   | `/api/today-specials`     | Create a new special        |
+| Method | Endpoint                    | Description                                          |
+| ------ | ---------------------------- | ------------------------------------------------------- |
+| GET    | `/api/today-specials`       | Get all today's specials                             |
+| GET    | `/api/today-specials/active` | Get only active specials, newest first (customer display) |
+| GET    | `/api/today-specials/:id`   | Get a single special by id                           |
+| POST   | `/api/today-specials`       | Create a new special                                 |
 | PUT    | `/api/today-specials/:id` | Update an existing special  |
 | DELETE | `/api/today-specials/:id` | Delete a special            |
 

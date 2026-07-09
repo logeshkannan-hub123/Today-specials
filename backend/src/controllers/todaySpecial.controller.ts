@@ -23,6 +23,15 @@ export const getAllTodaySpecials = asyncHandler(
   }
 );
 
+export const getActiveTodaySpecials = asyncHandler(
+  async (_req: Request, res: Response): Promise<void> => {
+    const specials = await todaySpecialService.getActiveTodaySpecials();
+    const data = specials.map(serializeTodaySpecial);
+
+    res.status(200).json(successResponse("Active today's specials fetched successfully", data));
+  }
+);
+
 export const getTodaySpecialById = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params.id);

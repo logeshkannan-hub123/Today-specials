@@ -9,6 +9,7 @@ import {
 const router = Router();
 
 router.get("/", todaySpecialController.getAllTodaySpecials);
+router.get("/active", todaySpecialController.getActiveTodaySpecials);
 router.get("/:id", validateIdParam, todaySpecialController.getTodaySpecialById);
 router.post(
   "/",

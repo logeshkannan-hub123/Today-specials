@@ -9,6 +9,13 @@ export async function getAllTodaySpecials(): Promise<TodaySpecial[]> {
   });
 }
 
+export async function getActiveTodaySpecials(): Promise<TodaySpecial[]> {
+  return prisma.todaySpecial.findMany({
+    where: { isActive: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getTodaySpecialById(id: number): Promise<TodaySpecial> {
   const special = await prisma.todaySpecial.findUnique({ where: { id } });
 

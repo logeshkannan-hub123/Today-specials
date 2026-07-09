@@ -1,0 +1,43 @@
+.carousel {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.carousel-slide {
+  width: 100%;
+  height: 100%;
+  animation: carousel-fade-in 700ms ease;
+}
+
+@keyframes carousel-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.carousel-indicators {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 2.5rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 248, 236, 0.35);
+  transition: background-color 300ms ease, transform 300ms ease;
+}
+
+.carousel-dot-active {
+  background-color: var(--color-primary-light);
+  transform: scale(1.3);
+}
