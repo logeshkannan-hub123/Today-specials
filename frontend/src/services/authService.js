@@ -1,6 +1,11 @@
 import api from "./api";
 import { AUTH_STORAGE_KEY } from "../utils/constants";
 
+export async function getAuthStatus() {
+  const response = await api.get("/auth/status");
+  return response.data.data;
+}
+
 export async function login(username, password) {
   const response = await api.post("/auth/login", { username, password });
   const user = response.data.data;

@@ -6,6 +6,11 @@ import { LoginInput } from "../types/user.types";
 
 const SALT_ROUNDS = 10;
 
+export async function isFirstTimeSetup(): Promise<boolean> {
+  const userCount = await prisma.user.count();
+  return userCount === 0;
+}
+
 export async function loginUser(input: LoginInput): Promise<User> {
   const userCount = await prisma.user.count();
 

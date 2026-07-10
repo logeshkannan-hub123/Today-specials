@@ -173,15 +173,18 @@ Base URL: `/api/today-specials`
 
 For `PUT`, all fields are optional but at least one must be provided.
 
-## Authentication Endpoint
+## Authentication Endpoints
 
 Base URL: `/api/auth`
 
-| Method | Endpoint           | Description                                        |
-| ------ | -------------------- | ----------------------------------------------------- |
-| POST   | `/api/auth/login`   | First-run admin bootstrap, then username/password check |
+| Method | Endpoint            | Description                                              |
+| ------ | --------------------- | ------------------------------------------------------------ |
+| GET    | `/api/auth/status`   | Read-only check: `{ isFirstTimeSetup: boolean }`         |
+| POST   | `/api/auth/login`    | First-run admin bootstrap, then username/password check |
 
-There is a single auth endpoint — no separate registration API. `POST /api/auth/login` implements first-time-setup logic:
+`GET /api/auth/status` is a read-only helper for the frontend — it reports whether the `users` table is currently empty (`isFirstTimeSetup: true`) so the Login page can show a first-time-setup banner. It does not create or modify anything.
+
+There is a single login/auth-mutation endpoint — no separate registration API. `POST /api/auth/login` implements first-time-setup logic:
 
 1. If the `users` table is empty, the submitted `username`/`password` is hashed and inserted as the first (and only) admin account, and the request succeeds as a login.
 2. If the `users` table already has an account, the submitted credentials are checked against it (bcrypt compare). A mismatch on username or password returns `401` with `"Invalid username or password"`.

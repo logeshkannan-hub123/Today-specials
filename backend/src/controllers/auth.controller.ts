@@ -10,6 +10,14 @@ interface AuthRequestBody {
   password: string;
 }
 
+export const getAuthStatus = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const isFirstTimeSetup = await authService.isFirstTimeSetup();
+
+  res
+    .status(200)
+    .json(successResponse("Auth status fetched successfully", { isFirstTimeSetup }));
+});
+
 export const login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const body = req.body as AuthRequestBody;
 
