@@ -97,7 +97,7 @@ npm install
 Create a `.env` file in the `backend/` directory (an `.env` already exists for local development, `.env.example` is provided as a template):
 
 ```
-DATABASE_URL="mysql://root:logi2002@localhost/hotel_today_specials"
+DATABASE_URL="mysql://root:Password@localhost/hotel_today_specials"
 PORT=5000
 ```
 
