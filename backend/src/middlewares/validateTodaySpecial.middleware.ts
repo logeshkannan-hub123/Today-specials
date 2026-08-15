@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { isValidObjectId } from "mongoose";
 import ApiError from "../utils/ApiError";
 
 function isNonEmptyString(value: unknown): value is string {
@@ -105,9 +106,7 @@ export function validateUpdateTodaySpecial(
 }
 
 export function validateIdParam(req: Request, _res: Response, next: NextFunction): void {
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
+  if (!isValidObjectId(req.params.id)) {
     next(new ApiError(400, "Invalid id parameter"));
     return;
   }

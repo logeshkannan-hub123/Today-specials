@@ -1,12 +1,12 @@
-import type { TodaySpecial } from "@prisma/client";
+import type { TodaySpecialDoc } from "../models/TodaySpecial.model";
 import type { TodaySpecialResponse } from "../types/todaySpecial.types";
 
-export function serializeTodaySpecial(special: TodaySpecial): TodaySpecialResponse {
+export function serializeTodaySpecial(special: TodaySpecialDoc): TodaySpecialResponse {
   return {
-    id: special.id,
+    id: special._id.toString(),
     title: special.title,
     dishName: special.dishName,
-    price: Number(special.price),
+    price: special.price,
     image: special.image ? Buffer.from(special.image).toString("base64") : null,
     video: special.video ? Buffer.from(special.video).toString("base64") : null,
     isActive: special.isActive,

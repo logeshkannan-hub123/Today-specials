@@ -4,7 +4,7 @@ export interface LoginInput {
 }
 
 export interface UserResponse {
-  id: number;
+  id: string;
   username: string;
   createdAt: Date;
   updatedAt: Date;

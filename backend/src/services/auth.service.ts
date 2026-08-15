@@ -1,33 +1,28 @@
 import bcrypt from "bcryptjs";
-import type { User } from "@prisma/client";
-import prisma from "../config/prisma";
+import User, { type UserDoc } from "../models/User.model";
 import ApiError from "../utils/ApiError";
 import { LoginInput } from "../types/user.types";
 
 const SALT_ROUNDS = 10;
 
 export async function isFirstTimeSetup(): Promise<boolean> {
-  const userCount = await prisma.user.count();
+  const userCount = await User.countDocuments();
   return userCount === 0;
 }
 
-export async function loginUser(input: LoginInput): Promise<User> {
-  const userCount = await prisma.user.count();
+export async function loginUser(input: LoginInput): Promise<UserDoc> {
+  const userCount = await User.countDocuments();
 
   if (userCount === 0) {
     const hashedPassword = await bcrypt.hash(input.password, SALT_ROUNDS);
 
-    return prisma.user.create({
-      data: {
-        username: input.username,
-        password: hashedPassword,
-      },
+    return User.create({
+      username: input.username,
+      password: hashedPassword,
     });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { username: input.username },
-  });
+  const user = await User.findOne({ username: input.username });
 
   if (!user) {
     throw new ApiError(401, "Invalid username or password");

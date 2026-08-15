@@ -1,6 +1,6 @@
 # Hotel Today Specials - Backend
 
-Backend REST API for managing a hotel's "Today's Specials" dishes, built with **Node.js**, **Express.js**, **TypeScript**, **Prisma ORM**, and **MySQL**. Phase 2 adds simple username/password authentication used by the React frontend (see `../frontend`).
+Backend REST API for managing a hotel's "Today's Specials" dishes, built with **Node.js**, **Express.js**, **TypeScript**, **Mongoose**, and **MongoDB (Atlas)**. Phase 2 adds simple username/password authentication used by the React frontend (see `../frontend`).
 
 ## Project Overview
 
@@ -9,16 +9,16 @@ Hotel staff can manage today's special dishes through a clean REST API. Each spe
 - Title
 - Dish Name
 - Price
-- Image (stored as binary `LONGBLOB`, transferred as base64 over the API) — optional
-- Video (stored as binary `LONGBLOB`, transferred as base64 over the API) — optional, but **at least one of image or video is required**
+- Image (stored as binary, transferred as base64 over the API) — optional
+- Video (stored as binary, transferred as base64 over the API) — optional, but **at least one of image or video is required**
 - Is Active flag
 
-A `User` table backs simple login/create-user endpoints for the admin dashboard. There is no JWT/session middleware — the frontend keeps the logged-in state in `localStorage` and the dish CRUD endpoints remain open, matching the "simple session-based or localStorage login" requirement.
+A `User` collection backs simple login/create-user endpoints for the admin dashboard. There is no JWT/session middleware — the frontend keeps the logged-in state in `localStorage` and the dish CRUD endpoints remain open, matching the "simple session-based or localStorage login" requirement.
 
 The project follows a clean layered architecture:
 
 ```
-Route -> Controller -> Service -> Prisma Client -> MySQL
+Route -> Controller -> Service -> Mongoose Model -> MongoDB
 ```
 
 ## Tech Stack
@@ -26,23 +26,21 @@ Route -> Controller -> Service -> Prisma Client -> MySQL
 - Node.js
 - Express.js
 - TypeScript
-- Prisma ORM
-- MySQL
+- Mongoose
+- MongoDB (Atlas)
 
 ## Folder Structure
 
 ```
 backend/
 │
-├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
-│
-├── prisma.config.ts
-│
 ├── src/
 │   ├── config/
-│   │     prisma.ts
+│   │     db.ts
+│   │
+│   ├── models/
+│   │     TodaySpecial.model.ts
+│   │     User.model.ts
 │   │
 │   ├── controllers/
 │   │     todaySpecial.controller.ts
@@ -97,36 +95,15 @@ npm install
 Create a `.env` file in the `backend/` directory (an `.env` already exists for local development, `.env.example` is provided as a template):
 
 ```
-DATABASE_URL="mysql://root:Password@localhost/hotel_today_specials"
+MONGODB_URI="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/hotel_today_specials?retryWrites=true&w=majority"
 PORT=5000
 ```
 
-Make sure a MySQL server is running and that the `hotel_today_specials` database exists (Prisma migrate will create the tables, but the database itself must exist, or you can let MySQL create it beforehand).
+`MONGODB_URI` can point at a MongoDB Atlas cluster (as above) or a local `mongodb://localhost:27017/hotel_today_specials` instance — no other config is needed. Mongoose connects using this single URI; there's no separate CLI config or migration step, since MongoDB collections are created on first write.
 
-### Prisma 7 notes
+## Database Connection
 
-Prisma 7 no longer reads the datasource URL directly out of `schema.prisma`. Instead:
-
-- `prisma.config.ts` (project root) supplies `DATABASE_URL` to the Prisma **CLI** (`migrate`, `generate`, `studio`) — it loads `.env` itself via `dotenv/config`.
-- `src/config/prisma.ts` constructs the **runtime** client using a driver adapter (`@prisma/adapter-mariadb`, which speaks the MySQL wire protocol) built from `process.env.DATABASE_URL`. Plain `new PrismaClient()` with no adapter is no longer supported.
-
-Both places read the same `DATABASE_URL` from `.env`, so you only maintain it in one place.
-
-## Prisma Migration
-
-Run the initial migration to create the `today_specials` table:
-
-```bash
-npx prisma migrate dev
-```
-
-(In production, use `npx prisma migrate deploy` instead.)
-
-## Generate Prisma Client
-
-```bash
-npx prisma generate
-```
+`src/config/db.ts` exports `connectDB()`, which is called once in `src/server.ts` before the HTTP server starts listening. If `MONGODB_URI` is missing, startup fails fast with a clear error instead of the app booting into a broken state.
 
 ## Run Development Server
 
@@ -134,7 +111,7 @@ npx prisma generate
 npm run dev
 ```
 
-The server starts on `http://localhost:5000` (or the `PORT` set in `.env`).
+The server starts on `http://localhost:5000` (or the `PORT` set in `.env`), connecting to MongoDB first.
 
 ## Build & Run in Production
 
@@ -156,9 +133,11 @@ Base URL: `/api/today-specials`
 | PUT    | `/api/today-specials/:id` | Update an existing special  |
 | DELETE | `/api/today-specials/:id` | Delete a special            |
 
+`:id` must be a valid MongoDB `ObjectId` (a 24-character hex string) — an invalid id returns `400 Invalid id parameter` before touching the database.
+
 ### Request Body (POST / PUT)
 
-`image` and `video` must be sent as **base64-encoded strings** in the JSON body (they are stored as `LONGBLOB` in MySQL). Both are optional individually, but a `POST` must include at least one of them.
+`image` and `video` must be sent as **base64-encoded strings** in the JSON body (they are stored as binary `Buffer` fields in MongoDB). Both are optional individually, but a `POST` must include at least one of them.
 
 ```json
 {
@@ -182,12 +161,12 @@ Base URL: `/api/auth`
 | GET    | `/api/auth/status`   | Read-only check: `{ isFirstTimeSetup: boolean }`         |
 | POST   | `/api/auth/login`    | First-run admin bootstrap, then username/password check |
 
-`GET /api/auth/status` is a read-only helper for the frontend — it reports whether the `users` table is currently empty (`isFirstTimeSetup: true`) so the Login page can show a first-time-setup banner. It does not create or modify anything.
+`GET /api/auth/status` is a read-only helper for the frontend — it reports whether the `users` collection is currently empty (`isFirstTimeSetup: true`) so the Login page can show a first-time-setup banner. It does not create or modify anything.
 
 There is a single login/auth-mutation endpoint — no separate registration API. `POST /api/auth/login` implements first-time-setup logic:
 
-1. If the `users` table is empty, the submitted `username`/`password` is hashed and inserted as the first (and only) admin account, and the request succeeds as a login.
-2. If the `users` table already has an account, the submitted credentials are checked against it (bcrypt compare). A mismatch on username or password returns `401` with `"Invalid username or password"`.
+1. If the `users` collection is empty, the submitted `username`/`password` is hashed and inserted as the first (and only) admin account, and the request succeeds as a login.
+2. If the `users` collection already has an account, the submitted credentials are checked against it (bcrypt compare). A mismatch on username or password returns `401` with `"Invalid username or password"`.
 
 No new accounts can be created after the first one exists — there's intentionally no way to add more users via the API.
 
@@ -226,6 +205,3 @@ Passwords are hashed with `bcryptjs` before being stored; the API never returns 
 | `npm run dev`              | Start the dev server with nodemon + ts-node |
 | `npm run build`            | Compile TypeScript to `dist/`             |
 | `npm run start`             | Run the compiled production build         |
-| `npm run prisma:migrate`   | Run Prisma migrations                     |
-| `npm run prisma:generate`  | Generate the Prisma Client                |
-| `npm run prisma:studio`    | Open Prisma Studio                        |

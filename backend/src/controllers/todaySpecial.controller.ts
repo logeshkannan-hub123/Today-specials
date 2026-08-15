@@ -34,7 +34,7 @@ export const getActiveTodaySpecials = asyncHandler(
 
 export const getTodaySpecialById = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     const special = await todaySpecialService.getTodaySpecialById(id);
 
     res
@@ -66,7 +66,7 @@ export const createTodaySpecial = asyncHandler(
 
 export const updateTodaySpecial = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     const body = req.body as TodaySpecialRequestBody;
 
     const input: UpdateTodaySpecialInput = {
@@ -88,7 +88,7 @@ export const updateTodaySpecial = asyncHandler(
 
 export const deleteTodaySpecial = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     await todaySpecialService.deleteTodaySpecial(id);
 
     res.status(200).json(successResponse("Today's special deleted successfully", {}));
